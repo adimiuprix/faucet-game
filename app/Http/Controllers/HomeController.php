@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Currency;
 use App\Models\Faq;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\HCaptchaService;
 use App\Services\FaucetPayService;
@@ -63,7 +64,7 @@ class HomeController extends Controller
                 'energy' => 0,
                 'referred_by' => 0,
                 'balance' => 0,
-                'claim_chance' => 0,
+                'claim_chance' => Setting::faucetChance(),
                 'next_claim' => null,
             ]
         );
