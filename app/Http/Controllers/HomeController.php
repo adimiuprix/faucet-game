@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Captcha;
 use App\Models\Currency;
 use App\Models\Faq;
 use App\Models\Payment;
 use App\Models\Setting;
 use App\Models\User;
-use App\Services\HCaptchaService;
 use App\Services\FaucetPayService;
+use App\Services\HCaptchaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -31,11 +32,14 @@ class HomeController extends Controller
             return redirect()->route('dashboard');
         }
 
+        // Lempar SiteKey ke homepage
+        $sitekey = Captcha::first()?->getSiteKey();
+
         // ambil semua data payment yang status nya success
         $payments = Payment::latestPayments(10);
         $faqs = Faq::all();
 
-        return view('home', compact('payments', 'faqs'));
+        return view('home', compact('sitekey', 'payments', 'faqs'));
     }
 
     public function auth_process(Request $request, HCaptchaService $hcaptcha, FaucetPayService $faucetPay)

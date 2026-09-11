@@ -56,7 +56,7 @@
                 </li>
 
                 <li class="sidebar-menu-item">
-                    <a href="{{ route('admin.captcha') }}" class="sidebar-menu-link {{ request()->routeIs('admin.captcha*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.captcha.index') }}" class="sidebar-menu-link {{ request()->routeIs('admin.captcha*') ? 'active' : '' }}">
                         <i class="bi bi-table"></i>
                         <span>Captcha</span>
                     </a>

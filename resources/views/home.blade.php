@@ -84,20 +84,12 @@
                         <div data-aos="zoom-in" data-aos-delay="700">
                             <form action="{{ route('auth.process') }}" method="POST">
                                 @csrf
-                                <input
-                                    type="email"
-                                    name="email"
-                                    id="email"
-                                    class="form-input"
-                                    placeholder="Enter Your FaucetPay Email"
-                                    required
-                                    value="{{ old('email') }}"
-                                />
+                                <input type="email" name="email" id="email" class="form-input" placeholder="Enter Your FaucetPay Email" required value="{{ old('email') }}" />
                                 @error('email')
                                     <div class="alert alert-danger mt-2">{{ $message }}</div>
                                 @enderror
                                 <br />
-                                <div class="h-captcha" data-sitekey="5e6c31b6-447a-4a1c-b85e-1654ce4cfebc"></div>
+                                <div class="h-captcha" data-sitekey="{{ $sitekey }}"></div>
                                 <br />
                                 <button type="submit" class="hero_form_btn">Login Now</button>
                             </form>

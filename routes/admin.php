@@ -42,7 +42,10 @@ Route::prefix(config('admin.admin_prefix'))->name('admin.')->group(function () {
         Route::get('/setting', [AdminSettingController::class, 'index'])->name('setting');
         Route::put('/setting', [AdminSettingController::class, 'update'])->name('setting.update');
 
-        Route::get('/captcha', [AdminCaptchaController::class, 'index'])->name('captcha');
+        Route::prefix('captcha')->name('captcha.')->group(function () {
+            Route::get('/', [AdminCaptchaController::class, 'index'])->name('index');
+            Route::post('/', [AdminCaptchaController::class, 'store'])->name('store');
+        });
 
         Route::get('/user', [AdminUserController::class, 'index'])->name('user');
         Route::get('/logout', [AdminAuthController::class, 'logout'])->name('logout');
