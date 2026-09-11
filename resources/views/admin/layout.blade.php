@@ -20,7 +20,7 @@
 
     <body>
 
-        @include('admin.components.Sidebar')
+        @include('admin.components.sidebar')
         
         <!-- ==========================================
          START: Main Content Area
