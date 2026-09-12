@@ -45,21 +45,26 @@ class HomeController extends Controller
     public function auth_process(Request $request, HCaptchaService $hcaptcha, FaucetPayService $faucetPay)
     {
         // Validasi input email
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->only(['email', 'h-captcha-response']), [
             'email' => 'required|email',
+            'h-captcha-response' => 'required', 'string',
         ]);
+        
+        if (! $hcaptcha->verifyToken($request->input('h-captcha-response'))[0]) {
+            return back()->withErrors(['captcha' => 'Captcha verification failed.']);
+        }
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // take input from request
         $email = $request->input('email');
 
         // verify the email with faucetpay
         $verifyResult = $faucetPay->verify($email);
-        if (($verifyResult['success']) === false) {
-            return redirect()->back()->with('error', $verifyResult['message']);
-        }
+        if (!$verifyResult['success'])
+            return back()->with('error', $verifyResult['message']);
 
         $user = User::firstOrCreate(
             ['email' => $email],
