@@ -45,7 +45,7 @@ class FaucetController extends Controller
             ? $user->next_claim
             : null;
 
-        return view('faucet', compact('coin', 'balance', 'claimChance', 'energy', 'faucetChance', 'claimTimer', 'nextClaim'));
+        return view('faucet', compact('currency', 'coin', 'balance', 'claimChance', 'energy', 'faucetChance', 'claimTimer', 'nextClaim'));
     }
 
     public function verify(Request $request, FaucetPayService $faucetPay)

@@ -17,7 +17,7 @@
                                 <h3>{{ $coin }}</h3>
                             </div>
                             <div class="cpsc_bottom">
-                                <img src="{{ asset('coin/' . $coin . '.svg') }}" alt="" style="width: 35px;" />
+                                <img src="{{ asset('coin/' . $currency->image) }}" alt="" style="width: 35px;" />
                                 <p>Currently Claiming</p>
                             </div>
                         </div>
@@ -25,7 +25,7 @@
                     <div class="col-lg-3">
                         <div class="common_page_stat_card">
                             <div class="cpsc_top">
-                                <h3>{{ $balance }} <span class="small_txt">{{ $coin }}</span></h3>
+                                <h3>{{ $balance }} <span class="small_txt">{{ $currency->coin }}</span></h3>
                             </div>
                             <div class="cpsc_bottom">
                                 <img
