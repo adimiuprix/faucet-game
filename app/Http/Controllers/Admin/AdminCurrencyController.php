@@ -30,4 +30,20 @@ class AdminCurrencyController extends Controller
             'currency' => $currency,
         ]);
     }
+
+    public function updateReward(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'faucet_reward' => 'required|numeric|min:0',
+        ]);
+
+        $currency = Currency::findOrFail($id);
+        $currency->update(['faucet_reward' => $validated['faucet_reward']]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Faucet reward berhasil diupdate!',
+            'currency' => $currency,
+        ]);
+    }
 }

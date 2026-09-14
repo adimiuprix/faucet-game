@@ -43,6 +43,7 @@ Route::prefix(config('admin.admin_prefix'))->name('admin.')->group(function () {
         Route::prefix('currency')->name('currency.')->group(function () {
             Route::get('/', [AdminCurrencyController::class, 'index'])->name('index');
             Route::post('/{id}/toggle', [AdminCurrencyController::class, 'toggleStatus'])->name('toggle');
+            Route::put('/{id}/update-reward', [AdminCurrencyController::class, 'updateReward'])->name('update-reward');
         });
 
         Route::get('/setting', [AdminSettingController::class, 'index'])->name('setting');

@@ -53,7 +53,14 @@
                     </td>
                     <td>
                         <div class="d-flex justify-content-center gap-1">
-                            <a href="#" class="table-btn-action" title="Edit row"><i class="bi bi-pencil"></i></a>
+                            <a href="#" 
+                               class="table-btn-action" 
+                               title="Edit row"
+                               data-bs-toggle="modal" 
+                               data-bs-target="#editModal"
+                               onclick="openEditModal({{ $currency->id }}, '{{ $currency->coin }}', {{ $currency->faucet_reward }})">
+                                <i class="bi bi-pencil"></i>
+                            </a>
                         </div>
                     </td>
                 </tr>
@@ -67,6 +74,44 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Faucet Reward</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editForm">
+                <div class="modal-body">
+                    <input type="hidden" id="edit_currency_id">
+                    
+                    <div class="mb-3">
+                        <label for="edit_coin" class="form-label">Coin</label>
+                        <input type="text" class="form-control" id="edit_coin" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_faucet_reward" class="form-label">Faucet Reward <span class="text-danger">*</span></label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="edit_faucet_reward" 
+                               step="0.00000001" 
+                               min="0"
+                               required
+                               placeholder="0.00000000">
+                        <small class="form-text text-muted">Format: hingga 8 desimal</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -85,21 +130,68 @@ function toggleStatus(currencyId, isActive) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Optional: show success message
             console.log('Status updated successfully');
         } else {
-            // Revert toggle if failed
             document.getElementById(`currency_status_${currencyId}`).checked = !isActive;
             alert('Failed to update status');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        // Revert toggle if error
         document.getElementById(`currency_status_${currencyId}`).checked = !isActive;
         alert('Error updating status');
     });
 }
+
+function openEditModal(currencyId, coin, faucetReward) {
+    document.getElementById('edit_currency_id').value = currencyId;
+    document.getElementById('edit_coin').value = coin;
+    document.getElementById('edit_faucet_reward').value = faucetReward;
+}
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const currencyId = document.getElementById('edit_currency_id').value;
+    const faucetReward = document.getElementById('edit_faucet_reward').value;
+    
+    fetch(`/{{ config('admin.admin_prefix') }}/currency/${currencyId}/update-reward`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ faucet_reward: faucetReward })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+            modal.hide();
+            
+            // Show success message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                ${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.page-header').insertAdjacentElement('afterend', alertDiv);
+            
+            // Reload page after 1 second
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            alert('Failed to update faucet reward');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating faucet reward');
+    });
+});
 </script>
 
 @endsection
