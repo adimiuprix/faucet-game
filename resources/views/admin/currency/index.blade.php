@@ -85,10 +85,10 @@
                 <h5 class="modal-title" id="editModalLabel">Edit Faucet Reward</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="editForm">
+            <form id="editForm" method="POST">
+                @csrf
+                @method('PUT')
                 <div class="modal-body">
-                    <input type="hidden" id="edit_currency_id">
-                    
                     <div class="mb-3">
                         <label for="edit_coin" class="form-label">Coin</label>
                         <input type="text" class="form-control" id="edit_coin" readonly>
@@ -98,6 +98,7 @@
                         <label for="edit_faucet_reward" class="form-label">Faucet Reward <span class="text-danger">*</span></label>
                         <input type="number" 
                                class="form-control" 
+                               name="faucet_reward"
                                id="edit_faucet_reward" 
                                step="0.00000001" 
                                min="0"
@@ -144,54 +145,11 @@ function toggleStatus(currencyId, isActive) {
 }
 
 function openEditModal(currencyId, coin, faucetReward) {
-    document.getElementById('edit_currency_id').value = currencyId;
+    const form = document.getElementById('editForm');
+    form.action = `/{{ config('admin.admin_prefix') }}/currency/${currencyId}/update-reward`;
     document.getElementById('edit_coin').value = coin;
     document.getElementById('edit_faucet_reward').value = faucetReward;
 }
-
-document.getElementById('editForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const currencyId = document.getElementById('edit_currency_id').value;
-    const faucetReward = document.getElementById('edit_faucet_reward').value;
-    
-    fetch(`/{{ config('admin.admin_prefix') }}/currency/${currencyId}/update-reward`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ faucet_reward: faucetReward })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-            modal.hide();
-            
-            // Show success message
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                ${data.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            document.querySelector('.page-header').insertAdjacentElement('afterend', alertDiv);
-            
-            // Reload page after 1 second
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        } else {
-            alert('Failed to update faucet reward');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error updating faucet reward');
-    });
-});
 </script>
 
 @endsection

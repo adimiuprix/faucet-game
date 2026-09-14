@@ -26,7 +26,7 @@ class AdminCurrencyController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Status berhasil diupdate!',
+            'message' => 'Status successfully updated.!',
             'currency' => $currency,
         ]);
     }
@@ -40,10 +40,7 @@ class AdminCurrencyController extends Controller
         $currency = Currency::findOrFail($id);
         $currency->update(['faucet_reward' => $validated['faucet_reward']]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Faucet reward berhasil diupdate!',
-            'currency' => $currency,
-        ]);
+        return redirect()->route('admin.currency.index')
+            ->with('success', 'The faucet reward has been successfully updated.!');
     }
 }
