@@ -15,20 +15,19 @@ class AdminCurrencyController extends Controller
         return view('admin.currency.index', compact('currencies'));
     }
 
-    public function update(Request $request)
+    public function toggleStatus(Request $request, int $id)
     {
         $validated = $request->validate([
-            'currencies' => 'required|array',
-            'currencies.*' => 'required|exists:currencies,id',
+            'status' => 'required|in:active,inactive',
         ]);
 
-        // Reset semua currency menjadi inactive
-        Currency::query()->update(['status' => 'inactive']);
+        $currency = Currency::findOrFail($id);
+        $currency->update(['status' => $validated['status']]);
 
-        // Aktifkan currency yang dipilih
-        Currency::whereIn('id', $validated['currencies'])->update(['status' => 'active']);
-
-        return redirect()->route('admin.currency.index')
-            ->with('success', 'Currency settings berhasil diupdate!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Status berhasil diupdate!',
+            'currency' => $currency,
+        ]);
     }
 }

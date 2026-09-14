@@ -15,63 +15,91 @@
 </div>
 @endif
 
-<div class="card p-4 border-light shadow-sm">
-    <h6 class="mb-4">Select Coin</h6>
-
-    <form action="{{ route('admin.currency.update') }}" method="POST">
-        @csrf
-        @method('PUT')
-
-        <div class="row g-4">
-            @php
-                $halfCount = ceil($currencies->count() / 2);
-                $leftColumn = $currencies->take($halfCount);
-                $rightColumn = $currencies->skip($halfCount);
-            @endphp
-
-            <!-- Kolom Kiri -->
-            <div class="col-12 col-md-6">
-                @foreach($leftColumn as $currency)
-                <div class="form-switch-custom">
-                    <input class="form-switch-input-custom" 
-                           type="checkbox" 
-                           name="currencies[]"
-                           value="{{ $currency->id }}"
-                           id="currency_{{ $currency->id }}"
-                           {{ $currency->status === 'active' ? 'checked' : '' }}>
-                    <label class="form-switch-label" for="currency_{{ $currency->id }}">
-                        {{ ucfirst($currency->coin) }}
-                    </label>
-                </div>
-                @endforeach
-            </div>
-
-            <!-- Kolom Kanan -->
-            <div class="col-12 col-md-6">
-                @foreach($rightColumn as $currency)
-                <div class="form-switch-custom">
-                    <input class="form-switch-input-custom" type="checkbox" name="currencies[]" value="{{ $currency->id }}" id="currency_{{ $currency->id }}" {{ $currency->status === 'active' ? 'checked' : '' }}>
-                    <label class="form-switch-label" for="currency_{{ $currency->id }}">
-                        {{ ucfirst($currency->coin) }}
-                    </label>
-                </div>
-                @endforeach
-            </div>
-        </div>
-
-        @if($currencies->isEmpty())
-        <div class="text-center py-4">
-            <i class="fas fa-coins fa-3x text-muted mb-3"></i>
-            <p class="text-muted">There are no currencies yet. Please add a currency first.</p>
-        </div>
-        @endif
-
-        <div class="text-center mt-4">
-            <button type="submit" class="btn-custom btn-custom-secondary">
-                <i class="fas fa-save me-2"></i>Save Changes
-            </button>
-        </div>
-    </form>
+<div class="card p-4 border-light shadow-sm text-center">
+    <!-- Responsive Table Wrapper -->
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Coin</th>
+                    <th>Faucet Reward</th>
+                    <th>Image</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($currencies as $currency)
+                <tr>
+                    <td class="table-order-id">#{{ $currency->id }}</td>
+                    <td class="table-product-name">{{ ucfirst($currency->coin) }}</td>
+                    <td class="table-amount">{{ number_format($currency->faucet_reward, 8) }}</td>
+                    <td class="table-amount">
+                        @if($currency->image)
+                            <img src="{{ asset('coin/' . $currency->image) }}" alt="{{ $currency->coin }}" style="width: 30px; height: 30px; object-fit: cover;">
+                        @else
+                            <span class="text-muted">-</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        <div class="form-check form-switch d-inline-block">
+                            <input class="form-switch-input-custom" 
+                                   type="checkbox" 
+                                   id="currency_status_{{ $currency->id }}"
+                                   {{ $currency->status === 'active' ? 'checked' : '' }}
+                                   onchange="toggleStatus({{ $currency->id }}, this.checked)">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="#" class="table-btn-action" title="Edit row"><i class="bi bi-pencil"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #999;"></i>
+                        <p class="text-muted mt-2">Tidak ada data currency.</p>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<script>
+function toggleStatus(currencyId, isActive) {
+    const status = isActive ? 'active' : 'inactive';
+    
+    fetch(`/{{ config('admin.admin_prefix') }}/currency/${currencyId}/toggle`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Optional: show success message
+            console.log('Status updated successfully');
+        } else {
+            // Revert toggle if failed
+            document.getElementById(`currency_status_${currencyId}`).checked = !isActive;
+            alert('Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Revert toggle if error
+        document.getElementById(`currency_status_${currencyId}`).checked = !isActive;
+        alert('Error updating status');
+    });
+}
+</script>
 
 @endsection

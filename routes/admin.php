@@ -3,13 +3,13 @@
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminCaptchaController;
 use App\Http\Controllers\Admin\AdminCouponController;
+use App\Http\Controllers\Admin\AdminCurrencyController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFaucetController;
 use App\Http\Controllers\Admin\AdminMiningController;
 use App\Http\Controllers\Admin\AdminPtcController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\AdminCurrencyController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix(config('admin.admin_prefix'))->name('admin.')->group(function () {
@@ -42,7 +42,7 @@ Route::prefix(config('admin.admin_prefix'))->name('admin.')->group(function () {
 
         Route::prefix('currency')->name('currency.')->group(function () {
             Route::get('/', [AdminCurrencyController::class, 'index'])->name('index');
-            Route::put('/', [AdminCurrencyController::class, 'update'])->name('update');
+            Route::post('/{id}/toggle', [AdminCurrencyController::class, 'toggleStatus'])->name('toggle');
         });
 
         Route::get('/setting', [AdminSettingController::class, 'index'])->name('setting');
