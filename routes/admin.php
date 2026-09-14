@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminMiningController;
 use App\Http\Controllers\Admin\AdminPtcController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminCurrencyController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix(config('admin.admin_prefix'))->name('admin.')->group(function () {
@@ -37,6 +38,11 @@ Route::prefix(config('admin.admin_prefix'))->name('admin.')->group(function () {
             Route::get('/edit/{id}', [AdminPtcController::class, 'edit'])->name('edit');
             Route::put('/{id}', [AdminPtcController::class, 'update'])->name('update');
             Route::delete('/{id}', [AdminPtcController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('currency')->name('currency.')->group(function () {
+            Route::get('/', [AdminCurrencyController::class, 'index'])->name('index');
+            Route::put('/', [AdminCurrencyController::class, 'update'])->name('update');
         });
 
         Route::get('/setting', [AdminSettingController::class, 'index'])->name('setting');

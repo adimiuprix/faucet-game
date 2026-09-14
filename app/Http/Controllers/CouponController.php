@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use App\Services\CoinMarketCapService;
-use App\Services\FaucetPayService;
 use App\Models\Currency;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Setting;
+use App\Services\CoinMarketCapService;
+use App\Services\FaucetPayService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CouponController extends Controller
 {

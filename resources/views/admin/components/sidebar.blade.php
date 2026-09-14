@@ -62,6 +62,12 @@
                     </a>
                 </li>
 
+                <li class="sidebar-menu-item">
+                    <a href="{{ route('admin.currency.index') }}" class="sidebar-menu-link {{ request()->routeIs('admin.currency*') ? 'active' : '' }}">
+                        <i class="bi bi-table"></i>
+                        <span>Currency</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-menu-item">
                     <a href="{{ route('admin.setting') }}" class="sidebar-menu-link {{ request()->routeIs('admin.setting*') ? 'active' : '' }}">
@@ -69,6 +75,7 @@
                         <span>Setting</span>
                     </a>
                 </li>
+
             </ul>
         </div>
     </div>
