@@ -73,28 +73,9 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js"></script>
         <script src="{{ asset('dash/js/dash.js') }}"></script>
+        
         <script>
-            @if(session()->has('success'))
-                Swal.fire({
-                    icon: '{{ session('success') ? 'success' : 'error' }}',
-                    title: '{{ session('success') ? 'Success!' : 'Oops...' }}',
-                    text: '{{ session('message') }}',
-                    @if(session('success'))
-                    timer: 3000,
-                    timerProgressBar: true,
-                    @endif
-                });
-            @elseif(session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: '{{ session('error') }}',
-                });
-            @endif
-        </script>
-
-        <script>
-            // Menampilkan SweetAlert2 saat berhasil redeem code
+            // SweetAlert untuk success message
             @if(session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -102,16 +83,18 @@
                     text: @json(session('success')),
                     showConfirmButton: true,
                     confirmButtonColor: '#7b2ff7',
-                    timer: 3000
+                    timer: 5000,
+                    timerProgressBar: true,
                 });
             @endif
 
-            // Menampilkan SweetAlert2 saat gagal redeem code
+            // SweetAlert untuk error message
             @if(session('error'))
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
+                    title: 'Oops...',
                     text: @json(session('error')),
+                    showConfirmButton: true,
                 });
             @endif
         </script>
@@ -121,28 +104,19 @@
             const copyBtn = document.querySelector(".refer-copy-btn");
             const copyTxt = document.querySelector("#refer-code");
 
-            copyBtn.addEventListener("click", () => {
-                copyTxt.select();
-                copyTxt.setSelectionRange(0, 99999);
+            if (copyBtn && copyTxt) {
+                copyBtn.addEventListener("click", () => {
+                    copyTxt.select();
+                    copyTxt.setSelectionRange(0, 99999);
 
-                navigator.clipboard.writeText(copyTxt.value);
+                    navigator.clipboard.writeText(copyTxt.value);
 
-                console.log(copyTxt.value);
+                    console.log(copyTxt.value);
 
-                Swal.fire("Copied", "", "success");
-            });
+                    Swal.fire("Copied", "", "success");
+                });
+            }
         </script>
-
-        @if(session('success') !== null)
-        <script>
-            @if(session('success'))
-                Swal.fire("{{ session('message') }}", "", "success");
-            @else
-                Swal.fire("{{ session('message') }}", "", "error");
-            @endif
-        </script>
-        @endif
-
 
     </body>
 </html>

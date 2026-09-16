@@ -34,7 +34,7 @@ class AdminCouponController extends Controller
             'code' => $request->input('code'),
             'reward' => $request->input('reward'),
             'energy_reward' => $request->input('energy'),
-            'expired_at' => now()->addDay()
+            'expired_at' => now()->addDay(),
         ]);
 
         return redirect()->route('admin.coupon.index');
@@ -53,7 +53,7 @@ class AdminCouponController extends Controller
             'code' => $request->input('code'),
             'reward' => $request->input('reward'),
             'energy_reward' => $request->input('energy'),
-            'expired_at' => now()->addDay()
+            'expired_at' => $request->input('ex_date'),
         ]);
 
         return redirect()->route('admin.coupon.index');
