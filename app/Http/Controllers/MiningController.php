@@ -35,12 +35,7 @@ class MiningController extends Controller
 
         // Cek apakah user punya energy yang cukup untuk membayar
         if ($user->getUserEnergy() < $plan->cost) {
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Not enough energy! You need '.$plan->cost.' energy, but you only have '.$user->energy.' energy.',
-                'energy' => $user->energy,
-                'required' => $plan->cost,
-            ]);
+            return redirect()->back()->with('error', 'Not enough energy! You need '.$plan->cost.' energy, but you only have '.$user->energy.' energy.');
         }
 
         // Cek apakah user sudah punya mining yang sama dan masih aktif
@@ -54,11 +49,7 @@ class MiningController extends Controller
             $hours = floor($remainingTime / 3600);
             $minutes = floor(($remainingTime % 3600) / 60);
 
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'You already have an active mining plan: '.$plan->plan_name.'. Wait '.$hours.'h '.$minutes.'m to claim it.',
-                'time_remaining' => $remainingTime,
-            ]);
+            return redirect()->back()->with('error', 'You already have an active mining plan: '.$plan->plan_name.'. Wait '.$hours.'h '.$minutes.'m to claim it.');
         }
 
         try {
@@ -76,23 +67,12 @@ class MiningController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with([
-                'success' => true,
-                'message' => '🎉 Mining plan "'.$plan->plan_name.'" activated successfully! You will be able to claim in '.($plan->duration / 3600).' hours.',
-                'energy_remaining' => $user->energy,
-                'energy_used' => $plan->cost,
-                'plan_name' => $plan->plan_name,
-                'duration_hours' => $plan->duration / 3600,
-            ]);
+            return redirect()->back()->with('success', '🎉 Mining plan "'.$plan->plan_name.'" activated successfully! You will be able to claim in '.($plan->duration / 3600).' hours.');
 
         } catch (Exception $e) {
             DB::rollBack();
 
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Oops! Something went wrong while activating your mining plan. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : null,
-            ]);
+            return redirect()->back()->with('error', 'Oops! Something went wrong while activating your mining plan. Please try again.');
         }
     }
 
@@ -119,13 +99,7 @@ class MiningController extends Controller
 
         DB::commit();
 
-        return redirect()->back()->with([
-            'success' => true,
-            'message' => '🎉 Mining claimed successfully! You received '.number_format($rewardAmount, 8).' '.$currency->coin.'!',
-            'reward_amount' => number_format($rewardAmount, 8),
-            'currency' => $currency->coin,
-            'plan_name' => $plan->plan_name,
-        ]);
+        return redirect()->back()->with('success', '🎉 Mining claimed successfully! You received '.number_format($rewardAmount, 8).' '.$currency->coin.'!');
     }
 
     public function sync(): void

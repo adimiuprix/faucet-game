@@ -61,10 +61,7 @@ class FaucetController extends Controller
             ->first();
 
         if (! $currency) {
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Currency not available or inactive. Please select a valid cryptocurrency.',
-            ]);
+            return redirect()->back()->with('error', 'Currency not available or inactive. Please select a valid cryptocurrency.');
         }
 
         // Get settings from database
@@ -73,20 +70,12 @@ class FaucetController extends Controller
 
         // Check if user has enough energy
         if ($user->energy < $energyRequired) {
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Not enough energy to claim! You need '.$energyRequired.' energy, but you only have '.$user->energy.' energy.',
-                'energy' => $user->energy,
-                'required' => $energyRequired,
-            ]);
+            return redirect()->back()->with('error', 'Not enough energy to claim! You need '.$energyRequired.' energy, but you only have '.$user->energy.' energy.');
         }
 
         // Check if user has enough chance to claim faucet, minimum 1 chance
         if ($user->claim_chance < 1) {
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Not enough chance to claim! You need at least 1 chance to claim faucet.',
-            ]);
+            return redirect()->back()->with('error', 'Not enough chance to claim! You need at least 1 chance to claim faucet.');
         }
 
         // Check cooldown dari user->next_claim
@@ -95,22 +84,14 @@ class FaucetController extends Controller
             $minutes = floor($timeRemaining / 60);
             $seconds = $timeRemaining % 60;
 
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Please wait before claiming again! You can claim in '.$minutes.' minutes '.$seconds.' seconds.',
-                'time_remaining' => $timeRemaining,
-                'next_claim' => $user->next_claim,
-            ]);
+            return redirect()->back()->with('error', 'Please wait before claiming again! You can claim in '.$minutes.' minutes '.$seconds.' seconds.');
         }
 
         // Calculate reward
         $rewardAmount = $currency->faucet_reward ?? 0;
 
         if ($rewardAmount <= 0) {
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Faucet reward has not been configured for '.$coin.'. Please contact support.',
-            ]);
+            return redirect()->back()->with('error', 'Faucet reward has not been configured for '.$coin.'. Please contact support.');
         }
 
         // Calculate next claim time
@@ -169,26 +150,12 @@ class FaucetController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with([
-                'success' => true,
-                'message' => '🎉 Congratulations! You have successfully claimed '.number_format($rewardAmount, 8).' '.$coin.'!',
-                'reward_amount' => number_format($rewardAmount, 8),
-                'currency' => $coin,
-                'energy_remaining' => $user->energy,
-                'energy_used' => $energyRequired,
-                'next_claim' => $nextClaimTime,
-                'cooldown_seconds' => $cooldownMinutes * 60,
-                'claim_id' => $claim->id,
-            ]);
+            return redirect()->back()->with('success', '🎉 Congratulations! You have successfully claimed '.number_format($rewardAmount, 8).' '.$coin.'!');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->back()->with([
-                'success' => false,
-                'message' => 'Oops! Something went wrong while processing your claim. Please try again in a few moments.',
-                'error' => config('app.debug') ? $e->getMessage() : null,
-            ]);
+            return redirect()->back()->with('error', 'Oops! Something went wrong while processing your claim. Please try again in a few moments.');
         }
     }
 }

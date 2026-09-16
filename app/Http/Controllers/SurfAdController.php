@@ -66,22 +66,22 @@ class SurfAdController extends Controller
         $user = Auth::user();
 
         if ($user->energy < 1) {
-            return redirect()->back()->with(['success' => false, 'message' => 'Not enough energy! Please refill your energy.']);
+            return redirect()->back()->with('error', 'Not enough energy! Please refill your energy.');
         }
 
         $currency = Currency::firstWhere(['coin' => $coin, 'status' => 'active']);
         if (! $currency) {
-            return redirect()->route('dashboard')->with(['success' => false, 'message' => 'Currency not found']);
+            return redirect()->route('dashboard')->with('error', 'Currency not found');
         }
 
         $ad = PtcAd::active()->find($id);
         if (! $ad) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with(['success' => false, 'message' => 'Ad is not available or inactive']);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'Ad is not available or inactive');
         }
 
         $rewardConfig = $ad->rewardForCurrency($currency->id);
         if (! $rewardConfig || $rewardConfig->reward <= 0) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with(['success' => false, 'message' => 'Reward not configured for this coin']);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'Reward not configured for this coin');
         }
 
         // Check if already completed today globally in any currency
@@ -92,7 +92,7 @@ class SurfAdController extends Controller
             ->exists();
 
         if ($alreadyClaimed) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with(['success' => false, 'message' => 'You have already visited this ad today']);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'You have already visited this ad today');
         }
 
         // Record/Create click session with pending status
@@ -117,17 +117,17 @@ class SurfAdController extends Controller
 
         $currency = Currency::firstWhere(['coin' => $coin, 'status' => 'active']);
         if (! $currency) {
-            return redirect()->route('dashboard')->with(['success' => false, 'message' => 'Currency not found']);
+            return redirect()->route('dashboard')->with('error', 'Currency not found');
         }
 
         $ad = PtcAd::active()->find($id);
         if (! $ad) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with(['success' => false, 'message' => 'Ad not found or inactive']);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'Ad not found or inactive');
         }
 
         $rewardConfig = $ad->rewardForCurrency($currency->id);
         if (! $rewardConfig || $rewardConfig->reward <= 0) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with(['success' => false, 'message' => 'Reward not configured']);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'Reward not configured');
         }
 
         // Get the latest pending click session
@@ -146,11 +146,11 @@ class SurfAdController extends Controller
             ->exists();
 
         if ($alreadyClaimed) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with(['success' => false, 'message' => 'You have already claimed this ad reward today']);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'You have already claimed this ad reward today');
         }
 
         if (! $click) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with(['success' => false, 'message' => 'No active visit session found']);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'No active visit session found');
         }
 
         // Validate timer duration using raw unix timestamp
@@ -161,10 +161,7 @@ class SurfAdController extends Controller
         $requiredTimer = max(1, $ad->timer - 2);
 
         if ($secondsPassed < $requiredTimer) {
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with([
-                'success' => false,
-                'message' => 'You did not view the ad for the required time. ('.$secondsPassed.'s / '.$ad->timer.'s elapsed)',
-            ]);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'You did not view the ad for the required time. ('.$secondsPassed.'s / '.$ad->timer.'s elapsed)');
         }
 
         try {
@@ -203,17 +200,11 @@ class SurfAdController extends Controller
 
             DB::commit();
 
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with([
-                'success' => true,
-                'message' => '🎉 You earned '.number_format($rewardConfig->reward, 8).' '.$coin.'!',
-            ]);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('success', '🎉 You earned '.number_format($rewardConfig->reward, 8).' '.$coin.'!');
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with([
-                'success' => false,
-                'message' => 'An error occurred while claiming your reward.',
-            ]);
+            return redirect()->route('ptc', ['coin' => strtolower($coin)])->with('error', 'An error occurred while claiming your reward.');
         }
     }
 }
