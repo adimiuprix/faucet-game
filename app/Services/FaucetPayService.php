@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Setting;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class FaucetPayService
@@ -43,8 +44,11 @@ class FaucetPayService
      */
     public function send(float|int $amount, string $currency, string $to): array
     {
+        $satoshi = (int) round($amount * 100_000_000);
+
         $payload = [
-            'amount' => $amount,
+            'idempotency_key' => Str::random(15),
+            'amount' => $satoshi,
             'to' => $to,
             'currency' => strtoupper($currency),
         ];

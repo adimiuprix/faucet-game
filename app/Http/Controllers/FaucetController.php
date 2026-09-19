@@ -137,7 +137,7 @@ class FaucetController extends Controller
             $user->decrementEnergy(1);
 
             // kirim ke faucetpay
-            $faucetPay->send($rewardAmount, $currency, $user->email);
+            $faucetPay->send($rewardAmount, $currency->coin, $user->email);
 
             // insert payment setelah berhasil verify
             Payment::create([
