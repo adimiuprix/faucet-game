@@ -86,15 +86,18 @@
                                         background: white;
                                     }
                                 </style>
-                                <form action="{{ route('faucet.verify') }}" method="POST">
+                                <form action="{{ route('faucet.verify') }}" method="POST" id="faucetForm">
                                     @csrf
                                     <input type="hidden" name="currency" value="{{ $coin }}" />
                                     <button
                                         type="submit"
+                                        id="claimButton"
                                         class="btn btn_primary claim-button"
                                         style="width: -webkit-fill-available"
+                                        data-next-claim="{{ $nextClaim ?? 0 }}"
+                                        @if($nextClaim) disabled @endif
                                     >
-                                        <i class="far fa-check-circle"></i> Claim Now
+                                        <i class="far fa-check-circle"></i> <span id="buttonText">Claim Now</span>
                                     </button>
                                 </form>
                             </div>
@@ -108,34 +111,6 @@
     </div>
 
     <script type="text/javascript">
-        // Timer countdown untuk claim button (dari backend: sisa cooldown)
-        $(() => {
-            @if($nextClaim)
-                const nextClaimAt = {{ $nextClaim }};
-                let timer = Math.max(0, nextClaimAt - Math.floor(Date.now() / 1000));
-            @else
-                let timer = 0;
-            @endif
-
-            const $claimButton = $('.claim-button');
-
-            if (timer > 0) {
-                $claimButton.prop('disabled', true);
-            }
-            
-            const counter = setInterval(() => {
-                if (timer === 0) {
-                    $claimButton.html('<i class="far fa-check-circle"></i> Claim Now');
-                    $claimButton.prop('disabled', false);
-                    clearInterval(counter);
-                } else {
-                    const secondText = timer === 1 ? 'Second' : 'Seconds';
-                    $claimButton.text(`Wait ${timer} ${secondText}`);
-                    timer--;
-                }
-            }, 1000);
-        });
-
         // BEHAVIORAL detection (detection only - server e sudhu signal jay)
         (() => {
             const pageStart = Date.now();

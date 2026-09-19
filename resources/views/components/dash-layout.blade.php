@@ -55,6 +55,29 @@
                 max-width: 100%;
                 height: auto;
             }
+
+            /* Claim button styles */
+            .claim-button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                background: linear-gradient(135deg, #6c757d, #495057) !important;
+            }
+            
+            .claim-button.ready {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(123, 47, 247, 0.7);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(123, 47, 247, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(123, 47, 247, 0);
+                }
+            }
         </style>
     </head>
     <body id="body" class="mm-active">
@@ -62,9 +85,9 @@
             
             <!-- ########## Sidebar Menu ########## -->
             <x-sidebar />
-
+            
             {{ $slot }}
-
+            
         </div>
         
         <!-- ########## js ########## -->
@@ -97,6 +120,54 @@
                     showConfirmButton: true,
                 });
             @endif
+        </script>
+
+        <script>
+            // Timer countdown untuk claim button (universal untuk semua halaman)
+            $(document).ready(function() {
+                const $claimButton = $('#claimButton');
+                
+                // Cek apakah ada claim button di halaman ini
+                if ($claimButton.length === 0) return;
+
+                // Ambil nextClaim dari data attribute
+                const nextClaimAt = parseInt($claimButton.data('next-claim')) || 0;
+                let remainingSeconds = Math.max(0, nextClaimAt - Math.floor(Date.now() / 1000));
+
+                const $buttonText = $('#buttonText');
+                const $buttonIcon = $claimButton.find('i');
+
+                function formatTime(seconds) {
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+                }
+
+                function updateButton() {
+                    if (remainingSeconds <= 0) {
+                        // Timer habis - aktifkan tombol
+                        $buttonIcon.attr('class', 'far fa-check-circle');
+                        $buttonText.text('Claim Now');
+                        $claimButton.prop('disabled', false);
+                        $claimButton.addClass('ready');
+                        clearInterval(countdownInterval);
+                        return;
+                    }
+
+                    // Masih cooldown - tampilkan timer
+                    $buttonIcon.attr('class', 'far fa-clock');
+                    $buttonText.text(`Wait ${formatTime(remainingSeconds)}`);
+                    $claimButton.prop('disabled', true);
+                    $claimButton.removeClass('ready');
+                    remainingSeconds--;
+                }
+
+                // Update immediately
+                updateButton();
+
+                // Update setiap detik
+                const countdownInterval = setInterval(updateButton, 1000);
+            });
         </script>
 
         <script>
